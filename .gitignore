@@ -1,0 +1,16 @@
+node_modules/
+npm-debug.log*
+package-lock.json
+.env
+
+docker-compose.override.yml
+*.pid
+*.pid.lock
+
+data/
+volumes/
+minio-data/
+chroma/
+
+uploads/
+tmp/
