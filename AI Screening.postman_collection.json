@@ -1,0 +1,151 @@
+{
+	"info": {
+		"_postman_id": "5c1e8d39-7cb7-4bba-bdb9-445e5829277e",
+		"name": "AI Screening",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "11893730"
+	},
+	"item": [
+		{
+			"name": "Inject CV Rubric",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"docId\": \"cv_rubric_v1\",\r\n  \"metadata\": {\r\n    \"source\": \"rubric\",\r\n    \"type\": \"cv_rubric\"\r\n  },\r\n  \"content\": \"Technical Skills Match (40%) — How well the candidate's skills align with job requirements. Experience Level (25%) — Depth and relevance of past work experience. Relevant Achievements (20%) — Demonstrated impact, measurable results, or notable contributions. Cultural Fit (15%) — Alignment with company values, collaboration, and communication style.\"\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://localhost:3000/ingest"
+			},
+			"response": []
+		},
+		{
+			"name": "Evaluate",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"job_title\": \"Backend Developer\",\r\n    \"cv_id\": \"cv_6362d0e1-9a90-40ca-8ece-3d9e4017d558.pdf\",\r\n    \"report_id\": \"rep_30c5cae0-9c2b-4733-87d7-af80ad8582a3.pdf\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://localhost:3000/evaluate"
+			},
+			"response": []
+		},
+		{
+			"name": "Upload Documents",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "cv",
+							"type": "file",
+							"src": "/C:/Users/Axioo Pongo/Downloads/CV - Johanes Inganta Karo Karo.pdf"
+						},
+						{
+							"key": "report",
+							"type": "file",
+							"src": "/C:/Users/Axioo Pongo/OneDrive/Documents/Resume/Project Report.pdf"
+						}
+					]
+				},
+				"url": "http://localhost:3000/upload"
+			},
+			"response": []
+		},
+		{
+			"name": "Result",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": "http://localhost:3000/result/job_1ed35dff-3430-4860-9182-2e7bb74c43df"
+			},
+			"response": []
+		},
+		{
+			"name": "Inject Project",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"docId\": \"case_study_brief_v1\",\r\n    \"metadata\": {\r\n        \"source\": \"case_study_brief\",\r\n        \"type\": \"project_context\"\r\n    },\r\n    \"content\": \"This document outlines the objective, core logic, deliverables, and scoring for the take-home project. Objective Your mission is to build a backend service that automates the initial screening of a job application. The service will receive a candidate's CV and a project report, evaluate them against a specific job description and a case study brief, and produce a structured, AI-generated evaluation report. Core Logic & Data Flow The system operates with a clear separation of inputs and reference documents: Candidate-Provided Inputs (The Data to be Evaluated): Candidate CV: The candidate's resume (PDF). Project Report: The candidate's project report to our take-home case study (PDF). System-Internal Documents (The 'Ground Truth' for Comparison): Job Description: A document detailing the requirements and responsibilities for the role you're currently applying. This will be used as ground truth for the Candidate CV. Case Study Brief: This document. Used as ground truth for the Project Report (PDF). Scoring Rubric: A predefined set of parameters for evaluating CV and Report, each has its own documents (PDF). Deliverables 1. Backend Service (API endpoints) Implement a backend service with at least the following RESTful API endpoints: POST /upload: Accepts multipart/form-data containing the Candidate CV and Project Report (PDF). Stores files and returns each with its own ID for later processing. POST /evaluate: Triggers the asynchronous AI evaluation pipeline. Receives input job title (string) and both document IDs. Immediately returns a job ID to track the evaluation process (e.g., {\\\"id\\\": \\\"456\\\", \\\"status\\\": \\\"queued\\\"}). GET /result/{id}: Retrieves the status and result of an evaluation job. Should reflect the asynchronous, multi-stage nature of the process. While queued or processing: returns {\\\"id\\\": \\\"456\\\", \\\"status\\\": \\\"queued\\\" | \\\"processing\\\"}. Once completed: returns a structured JSON including id, status: \\\"completed\\\", and a result object containing cv_match_rate, cv_feedback, project_score, project_feedback, and overall_summary. 2. Evaluation Pipeline The AI-driven pipeline, triggered by POST /evaluate, should consist of these key components: RAG (Context Retrieval): Ingest all System-Internal Documents (Job Description, Case Study Brief, Both Scoring Rubrics) into a vector database. Retrieve relevant sections and inject into prompts. Prompt Design & LLM Chaining: CV Evaluation: Parse CV, retrieve from Job Description and CV Scoring Rubrics, use an LLM to get cv_match_rate & cv_feedback. Project Report Evaluation: Parse Project Report, retrieve from Case Study Brief and CV Scoring Rubrics, use an LLM to get project_score & project_feedback. Final Analysis: Use a final LLM call to synthesize the outputs into a concise overall_summary. Long-Running Process Handling: POST /evaluate must not block. Store task, return job ID, allow GET /result/{id} to check periodically. Error Handling & Randomness Control: Simulate edge cases and how the service handles them. Simulate LLM API failures (timeouts, rate limit) and implement retries/back-off. Control LLM temperature or add a validation layer to keep responses stable. 3. Standardized Evaluation Parameters Define at least these scoring parameters: CV Evaluation (Match Rate): Technical Skills Match (backend, databases, APIs, cloud, AI/LLM exposure), Experience Level (years, project complexity), Relevant Achievements (impact, scale), Cultural Fit (communication, learning attitude). Project Deliverable Evaluation: Correctness (meets requirements: prompt design, chaining, RAG, handling errors), Code Quality (clean, modular, testable), Resilience (handles failures, retries), Documentation (clear README, explanation of trade-offs), Creativity / Bonus (optional improvements like authentication, deployment, dashboards). Each parameter can be scored 1-5, then aggregated to final score.\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://localhost:3000/ingest"
+			},
+			"response": []
+		},
+		{
+			"name": "Inject Job Desc",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"docId\": \"job_description_v1\",\r\n    \"metadata\": {\r\n        \"source\": \"job_description\",\r\n        \"type\": \"cv_context\"\r\n    },\r\n    \"content\": \"Job Description - Product Engineer (Backend) 2025 [cite: 373] Rakamin is hiring a Product Engineer (Backend) to work on Rakamin. [cite_start]We're looking for dedicated engineers who write code they're proud of and who are eager to keep scaling and improving complex systems, including those powered by Al. [cite: 375] [cite_start]About the Job [cite: 376] [cite_start]You'll be building new product features alongside a frontend engineer and product manager using our Agile methodology, as well as addressing issues to ensure our apps are robust and our codebase is clean. [cite: 377] [cite_start]As a Product Engineer, you'll write clean, efficient code to enhance our product's codebase in meaningful ways. [cite: 378] [cite_start]In addition to classic backend work, this role also touches on building Al-powered systems, where you'll design and orchestrate how large language models (LLMs) integrate into Rakamin's product ecosystem. [cite: 379] [cite_start]Here are some real examples of the work in our team: [cite: 380] [cite_start]Collaborating with frontend engineers and 3rd parties to build robust backend solutions that support highly configurable platforms and cross-platform integration. [cite: 381] [cite_start]Developing and maintaining server-side logic for central database, ensuring high performance throughput and response time. [cite: 382] [cite_start]Designing and fine-tuning Al prompts that align with product requirements and user contexts. [cite: 383] [cite_start]Building LLM chaining flows, where the output from one model is reliably passed to and enriched by another. [cite: 384] [cite_start]Implementing Retrieval-Augmented Generation (RAG) by embedding and retrieving context from vector databases, then injecting it into Al prompts to improve accuracy and relevance. [cite: 385] [cite_start]Handling long-running Al processes gracefully mechanisms. [cite: 386] [cite_start]including job orchestration, async background workers, and retry [cite: 387] [cite_start]Designing safeguards for uncontrolled scenarios: managing failure cases from 3rd party APIs and mitigating the randomness/nondeterminism of LLM outputs. [cite: 388] [cite_start]Leveraging Al tools and workflows to increase team productivity (e.g., Al-assisted code generation, automated QA, internal bots). [cite: 389] [cite_start]Writing reusable, testable, and efficient code to improve the functionality of our existing systems. [cite: 390] [cite_start]Strengthening our test coverage with RSpec to build robust and reliable web apps. [cite: 391] [cite_start]Conducting full product lifecycles, from idea generation to design, implementation, testing, deployment, and maintenance. [cite: 392] [cite_start]Providing input on technical feasibility, timelines, and potential product trade-offs, working with business divisions. [cite: 393] [cite_start]Actively engaging with users and stakeholders to understand their needs and translate them into backend and Al-driven improvements. [cite: 394] [cite_start]About You [cite: 395] [cite_start]We're looking for candidates with a strong track record of working on backend technologies of web apps, ideally with exposure to Al/LLM development or a strong desire to learn. [cite: 396] [cite_start]You should have experience with backend languages and frameworks (Node.js, Django, Rails), as well as modern backend tooling and technologies such as: [cite: 397] [cite_start]Database management (MySQL, PostgreSQL, MongoDB) [cite: 398] [cite_start]RESTful APIs [cite: 399] [cite_start]Security compliance [cite: 400] [cite_start]Cloud technologies (AWS, Google Cloud, Azure) [cite: 401] [cite_start]Server-side languages (Java, Python, Ruby, or JavaScript) [cite: 402] [cite_start]Understanding of frontend technologies [cite: 403] [cite_start]User authentication and authorization between multiple systems, servers, and environments [cite: 404] [cite_start]Scalable application design principles [cite: 405] [cite_start]Creating database schemas that represent and support business processes [cite: 406] [cite_start]Implementing automated testing platforms and unit tests [cite: 407] [cite_start]Familiarity with LLM APIs, embeddings, vector databases and prompt design best practices [cite: 408] [cite_start]We're not big on credentials, so a Computer Science degree or graduating from a prestigious university isn't something we emphasize. [cite: 409] [cite_start]We care about what you can do and how you do it, not how you got here. [cite: 410] [cite_start]While you'll report to a CTO directly, Rakamin is a company where Managers of One thrive. [cite: 411] [cite_start]We're quick to trust that you can do it, and here to support you. [cite: 412] [cite_start]You can expect to be counted on and do your best work and build a career here. [cite: 413] This is a remote job. [cite_start]You're free to work where you work best: home office, co-working space, coffee shops. [cite: 414] [cite_start]To ensure time zone overlap with our current team and maintain well communication, we're only looking for people based in Indonesia. [cite: 415]\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://localhost:3000/ingest"
+			},
+			"response": []
+		},
+		{
+			"name": "Get Context",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"query\": \"c\",\r\n    \"topK\": 5,\r\n    \"filter\": {\r\n        \"type\": \"cv_context\"\r\n    }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://localhost:3000/ingest/context"
+			},
+			"response": []
+		},
+		{
+			"name": "Inject Project Rubric",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"docId\": \"project_rubric_v1\",\r\n  \"metadata\": {\r\n    \"source\": \"rubric\",\r\n    \"type\": \"project_rubric\"\r\n  },\r\n  \"content\": \"Correctness (30%) — Accuracy and functionality of the implemented solution. Code Quality (25%) — Readability, structure, and maintainability of the code. Resilience & Error Handling (20%) — Ability to handle failures and unexpected scenarios gracefully. Documentation (15%) — Clarity and completeness of technical documentation or comments. Creativity/Bonus (10%) — Innovative ideas, extra effort, or unique design approaches.\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://localhost:3000/ingest"
+			},
+			"response": []
+		}
+	]
+}
