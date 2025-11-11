@@ -24,7 +24,7 @@ All services run together using **Docker Compose** for easy portability.
 
 ### **1. Clone the repository**
 ```bash
-git clone https://github.com/<your-username>/ai-screening-backend.git
+git clone https://github.com/inganta23/ai-screening.git
 cd ai-screening-backend
 ````
 
